@@ -2,25 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\ApiResponser;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use App\Traits\ApiResponser;
 use DB;
 
-class UserController extends Controller {
+class UserController extends Controller
+{
     use ApiResponser;
     private $request;
 
-    public function __construct(Request $request){
+    public function __construct(Request $request)
+    {
         $this->request = $request;
     }
 
-    public function getUsers(){
+    public function getUsers()
+{
+    $users = User::all(); // or just return a test response to see if it works
+    return $this->successResponse($users, "Users retrieved successfully", 200);
+}
+
+    public function index()
+    {
         $users = User::all();
-        return response()->json($users, 200);
+        return response()->json([
+            'data' => $users->values(),
+            'site' => 1
+        ]);
     }
 
-    public function add(Request $request) {
+    public function addUser(Request $request)
+    {
         $rules = [
             'username' => 'required|max:20',
             'password' => 'required|max:20',
@@ -28,15 +42,21 @@ class UserController extends Controller {
         ];
         $this->validate($request, $rules);
         $user = User::create($request->all());
-        return response()->json($user, 201);
+        return $this->successResponse($user, Response::HTTP_CREATED);
     }
 
-    public function show($id) {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+    public function show($id)
+    {
+        $user = User::where('userid', $id)->first();
+        if ($user) {
+            return $this->successResponse($user);
+        } else {
+            return $this->errorResponse('User ID Does Not Exist', Response::HTTP_NOT_FOUND);
+        }
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $rules = [
             'username' => 'max:20',
             'password' => 'max:20',
@@ -45,27 +65,19 @@ class UserController extends Controller {
         $this->validate($request, $rules);
         $user = User::findOrFail($id);
         $user->fill($request->all());
-
         if ($user->isClean()) {
-            return response()->json(['error' => 'At least one value must change'], 422);
+            return $this->errorResponse('At least one value must change', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
         $user->save();
-        return response()->json($user);
+        return $this->successResponse($user);
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $user = User::findOrFail($id);
         $user->delete();
-        return response()->json(['message' => 'User deleted successfully']);
-    }
-    
-    public function getUser(){
-        $user = ['name' => 'Jane Doe', 'email' => 'jane@example.com'];
-        return $this->successResponse($user); // ✅ use trait method
-    }
 
-    public function getError(){
-        return $this->errorResponse('User not found', 404); // ✅ use trait method
+        return $this->successResponse('User deleted successfully');
+    
     }
 }

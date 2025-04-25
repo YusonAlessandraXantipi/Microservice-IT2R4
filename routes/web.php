@@ -1,14 +1,14 @@
 <?php
-/** @var \Laravel\Lumen\Routing\Router $router */
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'api'], function () use ($router) {
-    $router->get('/users', 'UserController@getUsers'); // Get all users
-    $router->post('/users', 'UserController@add'); // Create user
-    $router->get('/users/{id}', 'UserController@show'); // Get user by ID
-    $router->put('/users/{id}', 'UserController@update'); // Update user
-    $router->delete('/users/{id}', 'UserController@delete'); // Delete user
-});
+$router->get('/users', ['uses' => 'UserController@getUsers']);
+
+    $router->get('/users', 'UserController@index');//get all users records
+    $router->post('/users', 'UserController@addUser');//create new user record
+    $router->get('/users/{id}', 'UserController@show');//get user by id
+    $router->put('/users/{id}', 'UserController@update');//update user record
+    $router->patch('/users/{id}', 'UserController@update');//update user record
+    $router->delete('/users/{id}', 'UserController@delete');//delete record

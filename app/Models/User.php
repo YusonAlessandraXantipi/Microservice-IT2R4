@@ -9,7 +9,7 @@ class User extends Model
     protected $table = 'tbluser';
 
     // Columns in the table
-    protected $fillable = ['username', 'password'];
+    protected $fillable = ['username', 'password', 'gender', 'jobid'];
 }
 
 
