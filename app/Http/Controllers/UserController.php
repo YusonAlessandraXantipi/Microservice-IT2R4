@@ -19,10 +19,10 @@ class UserController extends Controller
     }
 
     public function getUsers()
-{
-    $users = User::all(); // or just return a test response to see if it works
-    return $this->successResponse($users, "Users retrieved successfully", 200);
-}
+    {
+        $users = DB::connection('mysql')->select("Select * from tbl_user");
+        return $this->successResponse($users);
+    }
 
     public function index()
     {
